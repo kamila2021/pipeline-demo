@@ -8,12 +8,18 @@
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "db:seed": "node src/db/seed.js",
-    "health": "node -e \"fetch('http://localhost:'+(process.env.PORT||5001)+'/health').then(r=>r.json()).then(console.log).catch(console.error)\""
+    "health": "node -e \"fetch('http://localhost:'+(process.env.PORT||5001)+'/health').then(r=>r.json()).then(console.log).catch(console.error)\"",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^5.0.1",
     "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "supertest": "^7.3.0",
+    "vitest": "^5.0.1"
   }
 }

@@ -3,7 +3,9 @@
  * En Express 5, las promesas rechazadas en rutas asíncronas pasan automáticamente a este middleware.
  */
 export function errorHandler(err, req, res, next) {
-  console.error('💥 Error detectado en Express 5:', err);
+  if (process.env.NODE_ENV !== 'test') {
+    console.error('💥 Error detectado en Express 5:', err);
+  }
 
   const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
   
