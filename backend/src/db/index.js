@@ -96,6 +96,12 @@ export async function query(text, params = []) {
 function simulateQuery(text, params) {
   const normalized = text.trim().toLowerCase();
 
+  // SELECT BY ID
+  if (normalized.startsWith('select * from tasks where id = $1')) {
+    const item = inMemoryTasks.find(t => t.id === Number(params[0]));
+    return { rows: item ? [item] : [], rowCount: item ? 1 : 0 };
+  }
+
   // SELECT ALL OR FILTERED
   if (normalized.startsWith('select * from tasks') || normalized.startsWith('select id, title')) {
     let result = [...inMemoryTasks];
@@ -105,12 +111,6 @@ function simulateQuery(text, params) {
     // Simple sort
     result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     return { rows: result, rowCount: result.length };
-  }
-
-  // SELECT BY ID
-  if (normalized.startsWith('select * from tasks where id = $1')) {
-    const item = inMemoryTasks.find(t => t.id === Number(params[0]));
-    return { rows: item ? [item] : [], rowCount: item ? 1 : 0 };
   }
 
   // INSERT
