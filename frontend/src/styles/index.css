@@ -140,6 +140,77 @@ body {
   box-shadow: 0 0 10px var(--success);
 }
 
+/* System Health & Infrastructure Widget */
+.health-badge-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--border-color);
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  backdrop-filter: var(--backdrop-blur);
+  transition: var(--transition);
+}
+
+.health-badge-container.online {
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.health-badge-container.offline {
+  border-color: rgba(239, 68, 68, 0.3);
+  color: var(--danger);
+}
+
+.health-badge-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.online-dot {
+  background-color: var(--success);
+  box-shadow: 0 0 8px var(--success);
+}
+
+.offline-dot {
+  background-color: var(--danger);
+  box-shadow: 0 0 8px var(--danger);
+}
+
+.health-metrics-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.metric-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.metric-pill strong {
+  color: var(--text-primary);
+}
+
+
 /* Stats Overview Grid */
 .stats-grid {
   display: grid;

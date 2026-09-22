@@ -170,13 +170,15 @@ export default function App() {
       />
 
       <footer className="footer">
-        <p>⚡ Proyecto Fullstack con React 19, Vite, Express 5 y PostgreSQL 17</p>
+        <p>⚡ Proyecto Fullstack con React 19, Vite, Express 5, PostgreSQL 17, Systemd y Nginx</p>
         <div className="tech-pills">
           <span className="pill">React 19.0</span>
           <span className="pill">Vite 6/7</span>
           <span className="pill">Node.js 20+</span>
           <span className="pill">Express 5.0</span>
           <span className="pill">PostgreSQL 17</span>
+          <span className="pill">Systemd Managed</span>
+          <span className="pill">Nginx Proxy</span>
         </div>
       </footer>
     </div>

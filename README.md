@@ -1,9 +1,11 @@
-# ⚡ Proyecto Fullstack: React 19 + Express 5 + PostgreSQL 17
+# ⚡ Proyecto Fullstack: React 19 + Express 5 + PostgreSQL 17 + Systemd + Nginx
 
-Este proyecto es una aplicación web fullstack moderna construida utilizando las versiones solicitadas:
+Este proyecto es una aplicación web fullstack moderna construida utilizando las tecnologías solicitadas:
 - **Frontend**: React 19 + Vite
 - **Backend**: Node.js 20+ + Express 5
 - **Base de Datos**: PostgreSQL 17
+- **Gestión de Servicios**: Systemd (`backend-taskdb.service`)
+- **Reverse Proxy / Servidor Web**: Nginx (`taskdb.conf`)
 
 ---
 
@@ -12,6 +14,7 @@ Este proyecto es una aplicación web fullstack moderna construida utilizando las
 - **Node.js**: `v20.0.0` o superior.
 - **npm**: `v10.0.0` o superior.
 - **PostgreSQL**: Instancia local o remota de **PostgreSQL 17** (Opcional para arrancar, ya que cuenta con un sistema de fallback in-memory automático si no hay DB activa inmediatamente).
+- **Systemd & Nginx** *(Para entorno de producción Linux)*.
 
 ---
 
@@ -23,8 +26,8 @@ PROYECTO-INICIAL/
 │   ├── package.json
 │   ├── .env
 │   └── src/
-│       ├── server.js         # Punto de entrada (Puerto 5000)
-│       ├── app.js            # Instancia de Express 5
+│       ├── server.js         # Punto de entrada (Puerto 5001)
+│       ├── app.js            # Instancia de Express 5 & Endpoint /health
 │       ├── db/               # Conexión pool, esquema y seed SQL
 │       ├── routes/           # Rutas RESTful (/api/tasks)
 │       └── middleware/       # Captura asíncrona de errores Express 5
@@ -33,14 +36,18 @@ PROYECTO-INICIAL/
 │   ├── vite.config.js        # Configuración de proxy HTTP
 │   └── src/
 │       ├── App.jsx           # Dashboard principal
-│       ├── components/       # Componentes modulares
+│       ├── components/       # Componentes (SystemHealthBadge, TaskCard, etc.)
 │       └── styles/           # Sistema de diseño CSS moderno
+├── deploy/                   # Infraestructura y Configuración de Despliegue
+│   ├── systemd/              # Servicio backend-taskdb.service
+│   ├── nginx/                # Configuración Nginx Reverse Proxy (taskdb.conf)
+│   └── check-health.sh       # Script de diagnóstico Bash para /health
 └── README.md
 ```
 
 ---
 
-## 🚀 Guía de Inicio Rápido
+## 🚀 Guía de Inicio Rápido (Desarrollo)
 
 ### 1. Configuración del Backend (Express 5 & PostgreSQL 17)
 
@@ -51,17 +58,14 @@ cd backend
 # Instalar dependencias
 npm install
 
-# (Opcional) Configurar las credenciales en .env
-# Editando DB_HOST, DB_USER, DB_PASSWORD, DB_NAME
-
-# (Opcional) Ejecutar el script SQL de migración y seed en PostgreSQL 17
-npm run db:seed
-
 # Iniciar el servidor backend Express 5
 npm run dev
+
+# Verificar salud local del backend
+npm run health
 ```
 
-El servidor Express 5 estará disponible en `http://localhost:5000`.
+El servidor Express 5 estará disponible en `http://localhost:5001`.
 
 ---
 
@@ -84,29 +88,47 @@ La interfaz de usuario se abrirá en `http://localhost:3000`.
 
 ---
 
-## 🗄️ Esquema SQL para PostgreSQL 17
+## ⚙️ Despliegue en Producción (Systemd & Nginx)
 
-El archivo [`backend/src/db/schema.sql`](file:///Users/kamila/Desktop/PROYECTO-INICIAL/backend/src/db/schema.sql) contiene las especificaciones optimizadas para PostgreSQL 17:
+### 1. Configurar Systemd para el Backend
 
-```sql
-CREATE TABLE tasks (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    title VARCHAR(150) NOT NULL,
-    description TEXT,
-    status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'completed')),
-    priority VARCHAR(10) NOT NULL DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high')),
-    category VARCHAR(50) DEFAULT 'General',
-    due_date DATE,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+1. Copiar el archivo de unidad al directorio de Systemd:
+   ```bash
+   sudo cp deploy/systemd/backend-taskdb.service /etc/systemd/system/
+   ```
+2. Recargar y activar el servicio:
+   ```bash
+   sudo systemctl daemon-reload
+   sudo systemctl enable backend-taskdb
+   sudo systemctl start backend-taskdb
+   sudo systemctl status backend-taskdb
+   ```
+
+### 2. Configurar Nginx Reverse Proxy
+
+1. Copiar la configuración a Nginx:
+   ```bash
+   sudo cp deploy/nginx/taskdb.conf /etc/nginx/sites-available/
+   sudo ln -s /etc/nginx/sites-available/taskdb.conf /etc/nginx/sites-enabled/
+   ```
+2. Validar y reiniciar Nginx:
+   ```bash
+   sudo nginx -t
+   sudo systemctl restart nginx
+   ```
+
+### 3. Verificar Salud Local y Enrutamiento
+
+```bash
+./deploy/check-health.sh
 ```
 
 ---
 
 ## 🌟 Características Destacadas
 
-- **Express 5 Native Async Handlers**: Control automático de errores en funciones asíncronas sin necesidad de envoltorios manuales `try-catch` redundantes.
-- **React 19 Rendering**: Arquitectura limpia con estado reactivo, hooks optimizados y rendering eficiente.
-- **PostgreSQL 17 Resilient Connection**: Cliente `pg` con pool de conexiones optimizado y simulación en memoria cuando la DB aún no ha sido creada localmente.
-- **Diseño Ultra Moderno**: Tema oscuro con efectos Glassmorphism, respuesta táctil/hover, badges de estado dinámicos e indicadores de métricas.
+- **Health Check Local (`/health`)**: Endpoint nativo de diagnóstico para Nginx y Systemd watchdog con métricas de RAM, Uptime y PostgreSQL 17.
+- **Express 5 Native Async Handlers**: Control automático de errores asíncronos.
+- **React 19 Rendering & Infra Widget**: Componente `SystemHealthBadge` para visualizar en tiempo real la salud de la infraestructura.
+- **Nginx Reverse Proxy**: Enrutamiento optimizado para API `/api/`, salud `/health` y archivos estáticos SPA React.
+
