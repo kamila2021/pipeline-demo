@@ -59,6 +59,13 @@ let nextMemoryId = 4;
 
 let isPostgresConnected = false;
 
+export function getDbStatus() {
+  return {
+    connected: isPostgresConnected,
+    mode: isPostgresConnected ? 'PostgreSQL 17' : 'In-Memory Fallback'
+  };
+}
+
 // Test initial database connection
 pool.query('SELECT NOW()')
   .then(() => {

@@ -1,7 +1,8 @@
 import React from 'react';
-import { Layers, Database, Server, Code2 } from 'lucide-react';
+import { Layers } from 'lucide-react';
+import SystemHealthBadge from './SystemHealthBadge';
 
-export default function Navbar({ onOpenNewTask }) {
+export default function Navbar() {
   return (
     <header className="navbar">
       <div className="brand">
@@ -16,6 +17,8 @@ export default function Navbar({ onOpenNewTask }) {
           </div>
         </div>
       </div>
+
+      <SystemHealthBadge />
     </header>
   );
 }
