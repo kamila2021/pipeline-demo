@@ -1,4 +1,5 @@
 import { pool } from './index.js';
+import { logger } from '../logger.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -7,15 +8,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function runSeed() {
-  console.log('🌱 Ejecutando seed de base de datos PostgreSQL 17...');
+  logger.info('🌱 Ejecutando seed de base de datos PostgreSQL 17...');
   try {
     const schemaPath = path.join(__dirname, 'schema.sql');
     const schemaSql = fs.readFileSync(schemaPath, 'utf8');
 
-    console.log('📄 Aplicando esquema SQL...');
+    logger.info('📄 Aplicando esquema SQL...');
     await pool.query(schemaSql);
 
-    console.log('✏️ Insertando datos iniciales de prueba...');
+    logger.info('✏️ Insertando datos iniciales de prueba...');
     const seedQuery = `
       INSERT INTO tasks (title, description, status, priority, category, due_date) VALUES
       ('Configurar servidor PostgreSQL 17', 'Instalar y validar la instancia local de PostgreSQL 17 con la base de datos taskdb.', 'completed', 'high', 'DevOps', '2026-09-30'),
@@ -25,9 +26,9 @@ async function runSeed() {
     `;
     await pool.query(seedQuery);
 
-    console.log(' Seed completado con éxito.');
+    logger.info('✅ Seed completado con éxito.');
   } catch (error) {
-    console.error('❌ Error ejecutando el seed:', error.message);
+    logger.error({ err: error }, '❌ Error ejecutando el seed');
   } finally {
     await pool.end();
   }

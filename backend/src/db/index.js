@@ -1,5 +1,6 @@
 import pg from 'pg';
 import dotenv from 'dotenv';
+import { logger } from '../logger.js';
 
 dotenv.config();
 
@@ -72,6 +73,7 @@ const dbInitPromise = pool.query('SELECT NOW()')
   })
   .catch((err) => {
     isPostgresConnected = false;
+    logger.warn({ err }, 'PostgreSQL no disponible, usando fallback en memoria');
   });
 
 /**
@@ -84,7 +86,7 @@ export async function query(text, params = []) {
     try {
       return await pool.query(text, params);
     } catch (err) {
-      console.error('Error en consulta SQL PostgreSQL:', err.message);
+      logger.error({ err }, 'Error en consulta SQL PostgreSQL');
       throw err;
     }
   }

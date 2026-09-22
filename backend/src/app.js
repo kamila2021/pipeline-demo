@@ -1,7 +1,11 @@
 import express from 'express';
 import cors from 'cors';
+import pinoHttp from 'pino-http';
 import tasksRouter from './routes/tasks.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { metricsMiddleware } from './middleware/metricsMiddleware.js';
+import { logger } from './logger.js';
+import { register } from './metrics.js';
 
 import { getDbStatus } from './db/index.js';
 
@@ -11,6 +15,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(pinoHttp({
+  logger,
+  autoLogging: {
+    ignore: (req) => req.url === '/health' || req.url === '/api/health' || req.url === '/metrics',
+  },
+}));
+app.use(metricsMiddleware);
 
 // Healthcheck Handler
 const handleHealthCheck = (req, res) => {
@@ -42,6 +53,12 @@ app.get('/health', handleHealthCheck);
 
 // Healthcheck Route anterior mantenida por compatibilidad
 app.get('/api/health', handleHealthCheck);
+
+// Métricas Prometheus (scrape target)
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', register.contentType);
+  res.end(await register.metrics());
+});
 
 // API Routes
 app.use('/api/tasks', tasksRouter);

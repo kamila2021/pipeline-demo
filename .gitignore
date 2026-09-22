@@ -16,6 +16,7 @@ node_modules/
 *.pem
 *.key
 *.cert
+*.crt
 *.p12
 
 # 3. Compilación, builds y archivos generados
