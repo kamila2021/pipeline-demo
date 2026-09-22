@@ -94,7 +94,7 @@ desplegar_staging:
     - construir_frontend
   script:
     - echo "🚀 Desplegando versión de prueba en entorno de Staging..."
-    - echo "Servicios objetivo: Systemd (backend-taskdb) y Nginx Reverse Proxy"
+    - 'echo "Servicios objetivo: Systemd (backend-taskdb) y Nginx Reverse Proxy"'
     - echo "Verificando artefactos de producción en frontend/dist/..."
     - test -d frontend/dist && echo "🟢 Artefactos estáticos listos."
     - echo "✅ Despliegue en Staging completado exitosamente."
