@@ -112,7 +112,7 @@ verificar_stack:
     - echo "🐳 Levantando postgres, backend y frontend vía Docker Compose..."
     - docker compose up -d --build --wait postgres backend frontend
     - chmod +x deploy/smoke-test.sh
-    - BACKEND_URL=http://localhost:5001 FRONTEND_URL=http://localhost:8080 ./deploy/smoke-test.sh
+    - BACKEND_URL=http://docker:5001 FRONTEND_URL=http://docker:8080 ./deploy/smoke-test.sh
   after_script:
     - docker compose logs --no-color > compose-logs.txt 2>&1 || true
     - docker compose down -v || true
