@@ -2,7 +2,7 @@
 # GitLab CI/CD Pipeline Config - Fullstack React 19 + Express 5
 # =================================================================
 
-image: node:20-alpine
+image: node:22-alpine
 
 # Etapas del pipeline (en español según requerimientos del proyecto)
 stages:
@@ -39,7 +39,7 @@ construir_backend:
   script:
     - echo "📦 Instalando dependencias del Backend Express 5..."
     - cd backend
-    - npm ci --prefer-offline
+    - npm ci --prefer-offline --include=dev
   artifacts:
     paths:
       - backend/node_modules/
@@ -50,7 +50,7 @@ construir_frontend:
   script:
     - echo "🏗️ Instalando dependencias y compilando Frontend React 19 + Vite..."
     - cd frontend
-    - npm ci --prefer-offline
+    - npm ci --prefer-offline --include=dev
     - npm run build
   artifacts:
     paths:
