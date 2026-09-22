@@ -11,7 +11,7 @@ Este proyecto es una aplicación web fullstack moderna construida utilizando las
 
 ## 🛠️ Requisitos Previos
 
-- **Node.js**: `v20.0.0` o superior.
+- **Node.js**: `v22.0.0` o superior (requerido por vitest 5 y jsdom 30 en las devDependencies).
 - **npm**: `v10.0.0` o superior.
 - **PostgreSQL**: Instancia local o remota de **PostgreSQL 17** (Opcional para arrancar, ya que cuenta con un sistema de fallback in-memory automático si no hay DB activa inmediatamente).
 - **Systemd & Nginx** *(Para entorno de producción Linux)*.

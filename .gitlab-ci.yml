@@ -77,6 +77,8 @@ probar_frontend:
   stage: probar
   needs:
     - construir_frontend
+  variables:
+    NODE_ENV: "test"
   script:
     - echo "🧪 Ejecutando suite de pruebas unitarias del Frontend (Vitest + React Testing Library)..."
     - cd frontend
