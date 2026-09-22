@@ -14,7 +14,6 @@ stages:
 # Variables de entorno globales
 variables:
   NODE_ENV: "production"
-  VITE_API_URL: "http://localhost:5001/api"
   PORT: "5001"
   DB_HOST: "localhost"
   DB_PORT: "5432"
