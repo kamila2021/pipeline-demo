@@ -6,17 +6,28 @@ dotenv.config();
 
 const { Pool } = pg;
 
-// Pool configuration
-const poolConfig = {
-  host: process.env.DB_HOST || '127.0.0.1',
-  port: parseInt(process.env.DB_PORT || '5432', 10),
-  database: process.env.DB_NAME || 'taskdb',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres',
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: process.env.NODE_ENV === 'test' ? 500 : 3000,
-};
+// Pool configuration. DATABASE_URL (Neon, Render Postgres, etc.) toma
+// prioridad sobre las variables sueltas, que siguen sirviendo para local/CI.
+// Los proveedores gestionados exigen SSL; rejectUnauthorized:false porque
+// no exponen su cadena de certificados para validación estricta.
+const poolConfig = process.env.DATABASE_URL
+  ? {
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: process.env.NODE_ENV === 'test' ? 500 : 3000,
+    }
+  : {
+      host: process.env.DB_HOST || '127.0.0.1',
+      port: parseInt(process.env.DB_PORT || '5432', 10),
+      database: process.env.DB_NAME || 'taskdb',
+      user: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || 'postgres',
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: process.env.NODE_ENV === 'test' ? 500 : 3000,
+    };
 
 export const pool = new Pool(poolConfig);
 

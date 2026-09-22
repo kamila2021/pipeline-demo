@@ -5,6 +5,7 @@ import StatusFilter from './components/StatusFilter';
 import TaskList from './components/TaskList';
 import TaskForm from './components/TaskForm';
 import { Plus, Search } from 'lucide-react';
+import { API_BASE } from './config';
 
 export default function App() {
   const [tasks, setTasks] = useState([]);
@@ -18,7 +19,7 @@ export default function App() {
   // Fetch Stats
   const fetchStats = useCallback(async () => {
     try {
-      const res = await fetch('/api/tasks/stats');
+      const res = await fetch(`${API_BASE}/api/tasks/stats`);
       const data = await res.json();
       if (data.success) {
         setStats(data.data);
@@ -36,7 +37,7 @@ export default function App() {
       if (filter !== 'all') queryParams.append('status', filter);
       if (search) queryParams.append('search', search);
 
-      const res = await fetch(`/api/tasks?${queryParams.toString()}`);
+      const res = await fetch(`${API_BASE}/api/tasks?${queryParams.toString()}`);
       const data = await res.json();
       if (data.success) {
         setTasks(data.data);
@@ -71,7 +72,7 @@ export default function App() {
   const handleSubmitTask = async (formData) => {
     try {
       const isEditing = Boolean(editingTask);
-      const url = isEditing ? `/api/tasks/${editingTask.id}` : '/api/tasks';
+      const url = isEditing ? `${API_BASE}/api/tasks/${editingTask.id}` : `${API_BASE}/api/tasks`;
       const method = isEditing ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
@@ -94,7 +95,7 @@ export default function App() {
   const handleDeleteTask = async (id) => {
     if (!window.confirm('¿Estás seguro de eliminar esta tarea?')) return;
     try {
-      const res = await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE}/api/tasks/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.success) {
         fetchTasks();
@@ -107,7 +108,7 @@ export default function App() {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      const res = await fetch(`/api/tasks/${id}`, {
+      const res = await fetch(`${API_BASE}/api/tasks/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),

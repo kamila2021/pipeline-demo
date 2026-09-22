@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Server, Activity, ShieldCheck, Cpu, HardDrive } from 'lucide-react';
+import { API_BASE } from '../config';
 
 export default function SystemHealthBadge() {
   const [health, setHealth] = useState(null);
@@ -9,7 +10,7 @@ export default function SystemHealthBadge() {
   const checkHealth = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/health');
+      const res = await fetch(`${API_BASE}/health`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setHealth(data);
@@ -17,7 +18,7 @@ export default function SystemHealthBadge() {
     } catch (err) {
       console.warn('SystemHealthBadge: No se pudo consultar /health local, intentando /api/health:', err);
       try {
-        const resBackup = await fetch('/api/health');
+        const resBackup = await fetch(`${API_BASE}/api/health`);
         if (!resBackup.ok) throw new Error(`HTTP ${resBackup.status}`);
         const dataBackup = await resBackup.json();
         setHealth(dataBackup);
