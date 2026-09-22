@@ -7,14 +7,14 @@ const { Pool } = pg;
 
 // Pool configuration
 const poolConfig = {
-  host: process.env.DB_HOST || 'localhost',
+  host: process.env.DB_HOST || '127.0.0.1',
   port: parseInt(process.env.DB_PORT || '5432', 10),
   database: process.env.DB_NAME || 'taskdb',
   user: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
   max: 10,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 3000,
+  connectionTimeoutMillis: process.env.NODE_ENV === 'test' ? 500 : 3000,
 };
 
 export const pool = new Pool(poolConfig);
@@ -66,22 +66,20 @@ export function getDbStatus() {
   };
 }
 
-// Test initial database connection
-pool.query('SELECT NOW()')
+const dbInitPromise = pool.query('SELECT NOW()')
   .then(() => {
     isPostgresConnected = true;
-    console.log(' Conectado exitosamente a PostgreSQL 17');
   })
   .catch((err) => {
     isPostgresConnected = false;
-    console.warn('⚠️ No se pudo conectar a PostgreSQL local. Operando en modo In-Memory para desarrollo sin interrupciones.');
-    console.warn(` Detalle: ${err.message}`);
   });
 
 /**
  * Execute query against PostgreSQL pool, with automatic fallback to memory if offline.
  */
 export async function query(text, params = []) {
+  await dbInitPromise;
+
   if (isPostgresConnected) {
     try {
       return await pool.query(text, params);
