@@ -67,9 +67,56 @@ export function getDbStatus() {
   };
 }
 
+// Idempotente: a diferencia de schema.sql (usado por `npm run db:seed`, que
+// borra y recrea la tabla con datos de ejemplo), esto solo crea lo que falte
+// para que el backend funcione en un Postgres recién levantado (docker-compose,
+// CI) sin borrar datos existentes.
+const ensureSchemaSql = `
+  CREATE TABLE IF NOT EXISTS tasks (
+      id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+      title VARCHAR(150) NOT NULL,
+      description TEXT,
+      status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'completed')),
+      priority VARCHAR(10) NOT NULL DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high')),
+      category VARCHAR(50) DEFAULT 'General',
+      due_date DATE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
+  CREATE INDEX IF NOT EXISTS idx_tasks_priority ON tasks(priority);
+  CREATE INDEX IF NOT EXISTS idx_tasks_created_at ON tasks(created_at DESC);
+
+  CREATE OR REPLACE FUNCTION update_timestamp()
+  RETURNS TRIGGER AS $$
+  BEGIN
+      NEW.updated_at = CURRENT_TIMESTAMP;
+      RETURN NEW;
+  END;
+  $$ LANGUAGE plpgsql;
+
+  DO $$
+  BEGIN
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_trigger WHERE tgname = 'trg_update_tasks_timestamp'
+    ) THEN
+      CREATE TRIGGER trg_update_tasks_timestamp
+      BEFORE UPDATE ON tasks
+      FOR EACH ROW
+      EXECUTE FUNCTION update_timestamp();
+    END IF;
+  END $$;
+`;
+
 const dbInitPromise = pool.query('SELECT NOW()')
-  .then(() => {
+  .then(async () => {
     isPostgresConnected = true;
+    try {
+      await pool.query(ensureSchemaSql);
+    } catch (err) {
+      logger.error({ err }, 'No se pudo inicializar el esquema de la base de datos');
+    }
   })
   .catch((err) => {
     isPostgresConnected = false;
